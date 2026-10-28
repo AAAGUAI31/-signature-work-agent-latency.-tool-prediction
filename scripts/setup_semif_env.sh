@@ -20,6 +20,7 @@ fi
 export HF_HOME=/work/jz466/huggingface
 export TMPDIR="$SETUP_TMP"
 export PIP_DISABLE_PIP_VERSION_CHECK=1
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY
 
 mkdir -p "$(dirname "$VENV_ROOT")" "$SETUP_TMP"
 
