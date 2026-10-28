@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="$HOME/projects/jev/experiments/tool_prediction"
-SEMIF_ROOT="$HOME/projects/SemIf"
+SEMIF_ROOT="$HOME/projects/jev/SemIf-OpenJev"
 
 source "$SEMIF_ROOT/.venv/bin/activate"
 cd "$ROOT"

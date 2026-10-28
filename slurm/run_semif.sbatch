@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-SEMIF_ROOT="$HOME/projects/SemIf"
+SEMIF_ROOT="$HOME/projects/jev/SemIf-OpenJev"
 ROOT="$HOME/projects/jev/experiments/tool_prediction"
 test -f "$SEMIF_ROOT/src/semif_phase1/core.py"
 source "$SEMIF_ROOT/.venv/bin/activate"
@@ -27,6 +27,7 @@ nvidia-smi
 
 echo "=== Python ==="
 which python
+python -c 'import torch; assert torch.cuda.is_available(), "CUDA is unavailable in the SemIf-OpenJev environment"; print({"torch": torch.__version__, "torch_cuda": torch.version.cuda, "device": torch.cuda.get_device_name(0)})'
 
 python scripts/run_semif.py \
   --models-config configs/models.yaml \

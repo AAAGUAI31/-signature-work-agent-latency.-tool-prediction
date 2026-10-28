@@ -15,13 +15,21 @@ SemIf results produced here are open-model Jev-style typed decisions, not measur
 From this directory:
 
 ```bash
-SEMIF_ROOT="$HOME/projects/SemIf"
+SEMIF_ROOT="$HOME/projects/jev/SemIf-OpenJev"
 source "$SEMIF_ROOT/.venv/bin/activate"
 pip install -e '.[test,plots]'
 pip install -e "$SEMIF_ROOT"
 ```
 
 GPU model runs must be submitted on a DKUCC compute node. The GPU scripts request one A40 from `common-gpu`; CPU preparation and evaluation use the cluster default CPU partition.
+
+Create the dedicated DKUCC environment once from the experiment root:
+
+```bash
+sbatch slurm/setup_semif_env.sbatch
+```
+
+The setup job creates `~/projects/jev/SemIf-OpenJev/.venv`, installs the pinned OpenJev and experiment dependencies, and runs the test suite. Do not copy an existing virtual environment between directories.
 
 ## Data preparation
 
@@ -76,7 +84,7 @@ python scripts/window_dataset.py \
   --input data/splits/test_gate.jsonl \
   --output data/interim/test_gate_1024.jsonl \
   --rejected data/interim/test_gate_1024_rejected.jsonl \
-  --semif-repo "$HOME/projects/SemIf" \
+  --semif-repo "$HOME/projects/jev/SemIf-OpenJev" \
   --model Qwen/Qwen3.5-4B \
   --revision 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a \
   --max-tokens 1024
