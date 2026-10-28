@@ -100,6 +100,14 @@ def _sample_base(actor_id: str, trial: Any, task_id: Any, step: int) -> str:
     return f"retail-{safe_actor}-t{trial}-task{task_id}-s{step}"
 
 
+def gate_options_for_id(identifier: str) -> list[dict]:
+    """Counterbalance the two gate answer slots deterministically by sample ID."""
+    options = list(GATE_OPTIONS)
+    if hashlib.sha256(identifier.encode()).digest()[0] & 1:
+        options.reverse()
+    return options
+
+
 def build_rows(
     sources: Iterable[Path],
     tool_options: list[dict],
@@ -144,16 +152,16 @@ def build_rows(
                     continue
 
                 base = _sample_base(actor_id, trial, task_id, index)
-                state = {
-                    "messages": [_clean_prior_message(item) for item in trajectory[:index]],
-                    "available_tools": tool_options,
-                }
+                messages = [_clean_prior_message(item) for item in trajectory[:index]]
                 gate_id = f"{base}-gate"
                 gate_row = {
                     "id": gate_id,
-                    "state": state,
+                    "state": {
+                        "messages": messages,
+                        "available_tool_ids": [option["id"] for option in tool_options],
+                    },
                     "question": GATE_QUESTION,
-                    "options": GATE_OPTIONS,
+                    "options": gate_options_for_id(gate_id),
                 }
                 datasets[split].append(gate_row)
                 action_counts[action.action_type] += 1
@@ -161,7 +169,7 @@ def build_rows(
                 tool_id = f"{base}-tool"
                 universal_tool_row = {
                     "id": tool_id,
-                    "state": state,
+                    "state": {"messages": messages},
                     "question": TOOL_QUESTION,
                     "options": tool_options,
                 }

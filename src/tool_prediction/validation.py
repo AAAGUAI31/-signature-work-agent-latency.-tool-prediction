@@ -39,10 +39,13 @@ def validate_data_dir(data_dir: Path) -> dict:
         counts[f"gate_{split}"] = len(gate)
         counts[f"tool_{split}"] = len(tool)
         for row in gate:
-            if row["options"] != GATE_OPTIONS:
-                errors.append(f"{row['id']}: gate options differ from canonical order")
+            option_ids = [option.get("id") for option in row.get("options", [])]
+            if sorted(option_ids) != sorted(option["id"] for option in GATE_OPTIONS):
+                errors.append(f"{row['id']}: gate options differ from the canonical set")
             if not isinstance(row.get("state", {}).get("messages"), list) or not row["state"]["messages"]:
                 errors.append(f"{row['id']}: empty message history")
+            if row.get("state", {}).get("available_tool_ids") != CANONICAL_TOOL_IDS:
+                errors.append(f"{row['id']}: gate tool IDs differ from the canonical set")
         for row in tool:
             ids = [option.get("id") for option in row.get("options", [])]
             if ids != expected_order or len(ids) != len(set(ids)):

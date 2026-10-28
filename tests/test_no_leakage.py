@@ -33,7 +33,7 @@ def test_current_and_future_actions_are_absent_from_state(tmp_path):
     gate_b = next(row for row in state_b if row["id"].endswith("-gate"))["state"]
     assert gate_a == gate_b
     assert gate_a["messages"] == prefix
-    assert gate_a["available_tools"] == options
+    assert gate_a["available_tool_ids"] == CANONICAL_TOOL_IDS
     assert "reward" not in str(gate_a).lower()
     assert "SECRET" not in str(gate_a)
 

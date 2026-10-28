@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=tau-semif
+#SBATCH --job-name=tau-semif-v2
 #SBATCH --partition=common-gpu
 #SBATCH --gres=gpu:a40:1
 #SBATCH --cpus-per-task=8
@@ -9,9 +9,10 @@
 
 set -euo pipefail
 
-source ~/projects/SemIf/.venv/bin/activate
-
-ROOT=~/projects/jev/experiments/tool_prediction
+SEMIF_ROOT="$HOME/projects/SemIf"
+ROOT="$HOME/projects/jev/experiments/tool_prediction"
+test -f "$SEMIF_ROOT/src/semif_phase1/core.py"
+source "$SEMIF_ROOT/.venv/bin/activate"
 cd "$ROOT"
 
 export http_proxy=http://proxy-dku.oit.duke.edu:3128
@@ -29,7 +30,7 @@ which python
 
 python scripts/run_semif.py \
   --models-config configs/models.yaml \
-  --data-dir data/splits \
-  --semif-repo ../../SemIf-OpenJev \
+  --data-dir data/splits_v2 \
+  --semif-repo "$SEMIF_ROOT" \
   --split test \
-  --output predictions/semif_direct/test.jsonl
+  --output predictions/semif_direct_v2/test.jsonl

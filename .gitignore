@@ -1,9 +1,14 @@
 data/raw/*
 data/interim/*
 data/splits/*
+data/splits_v2/*
 predictions/*/*.jsonl
 reports/*.json
+reports/slurm-*.out
 reports/figures/*
+__pycache__/
+*.py[cod]
+.pytest_cache/
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/splits/.gitkeep

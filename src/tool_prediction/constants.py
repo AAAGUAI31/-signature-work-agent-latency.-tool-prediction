@@ -43,5 +43,5 @@ READ_ONLY_SPECULATION_TOOLS = {
     "list_all_product_types",
 }
 
-PREDICTION_SCHEMA_VERSION = "tau-retail-next-action-v1"
+PREDICTION_SCHEMA_VERSION = "tau-retail-next-action-v2"
 

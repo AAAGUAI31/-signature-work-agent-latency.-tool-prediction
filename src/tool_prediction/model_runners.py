@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 from .io import read_jsonl, write_jsonl
+from .windowing import fit_row_to_budget
 
 
 def _load_semif(semif_repo: Path):
@@ -17,9 +18,9 @@ def _load_semif(semif_repo: Path):
     if source not in sys.path:
         sys.path.insert(0, source)
     from semif_phase1.core import direct_messages, load_causal_model, synchronize
-    from semif_phase1.direct import score
+    from semif_phase1.direct import encode_prompt, score
 
-    return direct_messages, load_causal_model, synchronize, score
+    return direct_messages, load_causal_model, synchronize, encode_prompt, score
 
 
 def run_semif_direct(
@@ -33,18 +34,21 @@ def run_semif_direct(
     max_tokens: int,
     seed: int,
 ) -> int:
-    _, load_model, _, score = _load_semif(semif_repo)
+    _, load_model, _, encode_prompt, score = _load_semif(semif_repo)
     rows = list(read_jsonl(input_path))
     if not rows:
         raise ValueError("input is empty")
     model, tokenizer, metadata = load_model(model_name, revision, device, dtype)
-    score(model, tokenizer, rows[0], metadata, max_tokens)
+    encode = lambda row, budget: encode_prompt(tokenizer, row, budget)
+    warmup = fit_row_to_budget(rows[0], encode, max_tokens)
+    score(model, tokenizer, warmup, metadata, max_tokens)
     order = list(range(len(rows)))
     random.Random(seed).shuffle(order)
     outputs = [None] * len(rows)
     for index in order:
         try:
-            result = score(model, tokenizer, rows[index], metadata, max_tokens)
+            prepared = fit_row_to_budget(rows[index], encode, max_tokens)
+            result = score(model, tokenizer, prepared, metadata, max_tokens)
             best = max(range(len(result["probabilities"])), key=result["probabilities"].__getitem__)
             result.update(
                 {
@@ -52,6 +56,7 @@ def run_semif_direct(
                     "status": "ok",
                     "method": "semif_direct",
                     "run_seed": seed,
+                    "window": prepared["window"],
                 }
             )
         except (RuntimeError, ValueError) as error:
@@ -89,24 +94,24 @@ def run_same_weight_generation(
     max_tokens: int,
     seed: int,
 ) -> int:
-    direct_messages, load_model, synchronize, _ = _load_semif(semif_repo)
+    direct_messages, load_model, synchronize, encode_prompt, _ = _load_semif(semif_repo)
     import torch
 
     rows = list(read_jsonl(input_path))
     if not rows:
         raise ValueError("input is empty")
     model, tokenizer, metadata = load_model(model_name, revision, device, dtype)
+    encode = lambda row, budget: encode_prompt(tokenizer, row, budget)
 
     def predict(row: dict, record: bool) -> dict:
+        prepared = fit_row_to_budget(row, encode, max_tokens)
         started = time.perf_counter()
         prompt = tokenizer.apply_chat_template(
-            direct_messages(row), tokenize=False, add_generation_prompt=True, enable_thinking=False
+            direct_messages(prepared), tokenize=False, add_generation_prompt=True, enable_thinking=False
         )
         encode_started = time.perf_counter()
         inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False)
         input_tokens = int(inputs["input_ids"].shape[-1])
-        if input_tokens > max_tokens:
-            raise ValueError(f"{input_tokens} input tokens exceed {max_tokens}")
         inputs = {key: value.to(next(model.parameters()).device) for key, value in inputs.items()}
         encode_seconds = time.perf_counter() - encode_started
         synchronize(next(model.parameters()).device)
@@ -147,6 +152,7 @@ def run_same_weight_generation(
             "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
             "model": metadata,
             "run_seed": seed,
+            "window": prepared["window"],
         }
 
     predict(rows[0], False)

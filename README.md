@@ -15,13 +15,13 @@ SemIf results produced here are open-model Jev-style typed decisions, not measur
 From this directory:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+SEMIF_ROOT="$HOME/projects/SemIf"
+source "$SEMIF_ROOT/.venv/bin/activate"
 pip install -e '.[test,plots]'
-pip install -e ../../SemIf-OpenJev
+pip install -e "$SEMIF_ROOT"
 ```
 
-GPU model runs must be submitted on a DKUCC compute node. The files under `slurm/` intentionally omit cluster-specific partition, account, time, memory, and GRES values.
+GPU model runs must be submitted on a DKUCC compute node. The GPU scripts request one A40 from `common-gpu`; CPU preparation and evaluation use the cluster default CPU partition.
 
 ## Data preparation
 
@@ -61,12 +61,13 @@ python scripts/run_baselines.py \
   --baseline markov
 ```
 
-The GPU runs use the same checkpoint, revision, state, option order, dtype, device, and batch size. SemIf reads the restricted option logits at the final position; generation uses the same SemIf prompt and generates exactly one option letter with greedy decoding. Both warm the loaded model once before recorded rows.
+The GPU runs use the same checkpoint, revision, state, deterministic option order, dtype, device, and batch size. SemIf reads the restricted option logits at the final position; generation uses the same SemIf prompt and generates exactly one option letter with greedy decoding. Both warm the loaded model once before recorded rows. Gate answer slots are counterbalanced deterministically by sample ID. Model inference applies the same exact-token history window to both methods, preserving the policy and the most recent complete user-started blocks when a full trajectory exceeds the configured input budget.
 
 ```bash
-sbatch slurm/run_semif.sbatch
-sbatch slurm/run_generation.sbatch
+bash slurm/submit_v2.sh
 ```
+
+The submission script schedules CPU data preparation and baselines, the two GPU methods after preparation succeeds, and final CPU evaluation after both GPU jobs succeed. It preserves the original outputs and writes the new run to `data/splits_v2`, `predictions/*_v2`, and `reports/metrics_v2.json`.
 
 For context-budget experiments, window each gate and tool input separately. The command uses the exact SemIf prompt tokenizer, retains the policy/system message and most recent complete user-started blocks, records omissions, and writes every unrepresentable row to the rejected sidecar.
 
@@ -75,7 +76,7 @@ python scripts/window_dataset.py \
   --input data/splits/test_gate.jsonl \
   --output data/interim/test_gate_1024.jsonl \
   --rejected data/interim/test_gate_1024_rejected.jsonl \
-  --semif-repo ../../SemIf-OpenJev \
+  --semif-repo "$HOME/projects/SemIf" \
   --model Qwen/Qwen3.5-4B \
   --revision 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a \
   --max-tokens 1024
