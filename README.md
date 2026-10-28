@@ -29,7 +29,7 @@ Create the dedicated DKUCC environment once from the experiment root:
 sbatch slurm/setup_semif_env.sbatch
 ```
 
-The setup job creates `~/projects/jev/SemIf-OpenJev/.venv`, installs the pinned OpenJev and experiment dependencies, and runs the test suite. Do not copy an existing virtual environment between directories.
+The setup job creates the physical environment under `/work/$USER/venvs/semif-openjev`, links it as `~/projects/jev/SemIf-OpenJev/.venv`, installs the pinned OpenJev and experiment dependencies, and runs the test suite. Downloads use `/work/$USER/tmp/semif-openjev` and disable the pip cache so large CUDA wheels do not fill the home or node temporary filesystem. Do not copy an existing virtual environment between directories.
 
 ## Data preparation
 
