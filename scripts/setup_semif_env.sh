@@ -29,8 +29,10 @@ ln -s "$VENV_ROOT" "$SEMIF_ROOT/.venv"
 source "$SEMIF_ROOT/.venv/bin/activate"
 
 python -m pip install --no-cache-dir --upgrade pip setuptools wheel
-python -m pip install --no-cache-dir --no-build-isolation -e "${SEMIF_ROOT}[test]"
-python -m pip install --no-cache-dir --no-build-isolation -e "${ROOT}[test,plots]"
+python -m pip install --no-cache-dir -r "$SEMIF_ROOT/requirements.txt"
+python -m pip install --no-cache-dir 'matplotlib>=3.8'
+TMPDIR=/tmp python -m pip install --no-cache-dir --no-deps --no-build-isolation -e "$SEMIF_ROOT"
+TMPDIR=/tmp python -m pip install --no-cache-dir --no-deps --no-build-isolation -e "$ROOT"
 
 python -c 'import torch, transformers; print({"python_torch": torch.__version__, "transformers": transformers.__version__, "torch_cuda_build": torch.version.cuda})'
 PYTHONPATH="$ROOT/src" python -m pytest -q
