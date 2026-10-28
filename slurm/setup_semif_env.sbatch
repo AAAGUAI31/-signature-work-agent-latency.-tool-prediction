@@ -29,6 +29,8 @@ export HTTP_PROXY="$http_proxy"
 export HTTPS_PROXY="$https_proxy"
 export HF_HOME=/work/jz466/huggingface
 export TMPDIR="$SETUP_TMP"
+export PIP_INDEX_URL=https://pypi.org/simple
+export PIP_DISABLE_PIP_VERSION_CHECK=1
 
 mkdir -p "$(dirname "$VENV_ROOT")" "$SETUP_TMP"
 
@@ -36,9 +38,9 @@ python3 -m venv "$VENV_ROOT"
 ln -s "$VENV_ROOT" "$SEMIF_ROOT/.venv"
 source "$SEMIF_ROOT/.venv/bin/activate"
 
-python -m pip install --no-cache-dir --upgrade pip
-python -m pip install --no-cache-dir -e "${SEMIF_ROOT}[test]"
-python -m pip install --no-cache-dir -e "${ROOT}[test,plots]"
+python -m pip install --no-cache-dir --upgrade pip setuptools wheel
+python -m pip install --no-cache-dir --no-build-isolation -e "${SEMIF_ROOT}[test]"
+python -m pip install --no-cache-dir --no-build-isolation -e "${ROOT}[test,plots]"
 
 python -c 'import torch, transformers; print({"python_torch": torch.__version__, "transformers": transformers.__version__, "torch_cuda_build": torch.version.cuda})'
 PYTHONPATH="$ROOT/src" python -m pytest -q
