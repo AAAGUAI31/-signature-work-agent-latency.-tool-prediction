@@ -1,10 +1,4 @@
 #!/bin/bash
-#SBATCH --job-name=semif-env
-#SBATCH --output=reports/slurm-setup-semif-env-%j.out
-#SBATCH --time=02:00:00
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-
 set -euo pipefail
 
 ROOT="$HOME/projects/jev/experiments/tool_prediction"
@@ -23,13 +17,8 @@ if [[ -e "$VENV_ROOT" ]]; then
   exit 2
 fi
 
-export http_proxy=http://proxy-dku.oit.duke.edu:3128
-export https_proxy=http://proxy-dku.oit.duke.edu:3128
-export HTTP_PROXY="$http_proxy"
-export HTTPS_PROXY="$https_proxy"
 export HF_HOME=/work/jz466/huggingface
 export TMPDIR="$SETUP_TMP"
-export PIP_INDEX_URL=https://pypi.org/simple
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 
 mkdir -p "$(dirname "$VENV_ROOT")" "$SETUP_TMP"

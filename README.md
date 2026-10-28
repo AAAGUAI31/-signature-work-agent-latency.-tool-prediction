@@ -23,13 +23,13 @@ pip install -e "$SEMIF_ROOT"
 
 GPU model runs must be submitted on a DKUCC compute node. The GPU scripts request one A40 from `common-gpu`; CPU preparation and evaluation use the cluster default CPU partition.
 
-Create the dedicated DKUCC environment once from the experiment root:
+Create the dedicated DKUCC environment once from the login node:
 
 ```bash
-sbatch slurm/setup_semif_env.sbatch
+bash scripts/setup_semif_env.sh
 ```
 
-The setup job creates the physical environment under `/work/$USER/venvs/semif-openjev`, links it as `~/projects/jev/SemIf-OpenJev/.venv`, installs the pinned OpenJev and experiment dependencies, and runs the test suite. Downloads use `/work/$USER/tmp/semif-openjev` and disable the pip cache so large CUDA wheels do not fill the home or node temporary filesystem. Do not copy an existing virtual environment between directories.
+The setup script uses the login node's configured package index, creates the physical environment under `/work/$USER/venvs/semif-openjev`, and links it as `~/projects/jev/SemIf-OpenJev/.venv`. Downloads use `/work/$USER/tmp/semif-openjev` and disable the pip cache so large CUDA wheels do not fill the home or login-node temporary filesystem. It installs the pinned OpenJev and experiment dependencies and runs the test suite. Do not copy an existing virtual environment between directories. Model inference remains restricted to Slurm GPU jobs.
 
 ## Data preparation
 
