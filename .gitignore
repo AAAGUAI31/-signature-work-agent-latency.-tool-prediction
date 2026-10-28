@@ -1,0 +1,12 @@
+data/raw/*
+data/interim/*
+data/splits/*
+predictions/*/*.jsonl
+reports/*.json
+reports/figures/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/splits/.gitkeep
+!predictions/*/.gitkeep
+!reports/figures/.gitkeep
+

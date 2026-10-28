@@ -1,0 +1,16 @@
+{
+  "semif_repository_commit": "23cf1f39fc9534fe81437200959b6dfc7106e45a",
+  "model": {
+    "name": "Qwen/Qwen3.5-4B",
+    "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+    "dtype": "bfloat16",
+    "device": "cuda",
+    "max_tokens": 4096
+  },
+  "generation": {
+    "temperature": 0,
+    "max_new_tokens": 1,
+    "batch_size": 1
+  }
+}
+

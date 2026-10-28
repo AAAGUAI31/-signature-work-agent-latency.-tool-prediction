@@ -1,0 +1,2 @@
+Predict whether the main actor's very next action will be a tool invocation or a direct message to the user. Predict the recorded actor, not the ideal action. Do not perform the task.
+

@@ -1,0 +1,23 @@
+{
+  "schema_version": "tau-retail-next-action-v1",
+  "seed": 20261026,
+  "tau_bench": {
+    "repository": "https://github.com/sierra-research/tau-bench",
+    "commit": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+    "trajectories": ["gpt-4o-retail.json"]
+  },
+  "splits": {"train": 0.70, "val": 0.15, "test": 0.15},
+  "history_budgets": [512, 1024, 2048, 4096],
+  "bootstrap_samples": 2000,
+  "bootstrap_unit": "task_id",
+  "read_only_speculation_tools": [
+    "calculate",
+    "find_user_id_by_email",
+    "find_user_id_by_name_zip",
+    "get_order_details",
+    "get_product_details",
+    "get_user_details",
+    "list_all_product_types"
+  ]
+}
+
